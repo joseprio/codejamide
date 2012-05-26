@@ -1,0 +1,392 @@
+<!doctype html>
+<html>
+  <head>
+    <title>IDE</title>
+    <script src="lib/jquery.js"></script>
+    <script src="lib/facebox.js"></script>
+    <link rel="stylesheet" href="lib/facebox.css">
+    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="ace/theme-solarized_light.js" type="text/javascript" charset="utf-8"></script>
+    <script src="ace/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
+    
+    <style type="text/css">
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body {
+      font-family: Verdana, Arial, sans-serif;
+      overflow: hidden;
+    }
+      
+      #ioDiv {
+        position: absolute;
+        right: 50%;
+        left: 0;
+        bottom: 0;
+        top: 0;
+      }
+      
+      #code {
+        position: absolute;
+        left: 50%;
+        right: 0;
+        bottom: 0;
+        top: 0;
+      }
+      
+      #inputDiv, #outputDiv, #consoleDiv, #commandsDiv {
+        position: absolute;
+      }
+      
+      #consoleDiv {
+        right: 30%;
+        left: 0;
+        top: 50%;
+        bottom: 0;
+      }
+      
+      #commandsDiv {
+        width: 30%;
+        right: 0;
+        top: 50%;
+      }
+      
+      #commandsDiv input {
+        width: 100%;
+        /*margin-bottom: 5px;*/
+      }
+      
+      #outputDiv {
+        right: 0;
+        left: 50%;
+        top: 0;
+        bottom: 50%;
+      }
+      
+      #inputDiv {
+        left: 0;
+        right: 50%;
+        top: 0;
+        bottom: 50%;
+      }
+      
+      #inputDiv form, #outputDiv form, #consoleDiv form {
+        display: block;
+        position: absolute;
+        top: 20px;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+      }
+      
+      #inputDiv textarea, #outputDiv textarea, #consoleDiv textarea {
+        width: 100%;
+        height: 100%;
+      }
+      
+      .title {
+        font-weight: bold;
+        margin-left: 10px;
+      }
+      
+      .title span {
+        font-size: 80%;
+        font-weight: normal;
+        margin-left: 10px;
+      }
+      
+      #help, #arrayhelp, #stringhelp {
+        display: none;
+      }
+      
+      #facebox h2 {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      
+      #facebox p {
+        margin-top: 3px;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+<div id="ioDiv">
+<div id="inputDiv">
+<div class="title">Input <span><a href="#" onclick="return openFile();">Open file</a></span> <span><a href="#" onclick="clearInput(); return false;">Clear</a></span></div>
+<form>
+<input type="file" id="inputfile" accept="*" style="display:none" onchange="handleInputFiles(this.files)">
+<textarea id="input" name="input"></textarea></form>
+</div>
+<div id="outputDiv">
+<div class="title">Output <span><a href="#" onclick="$('#output').val(''); return false;">Clear</a></span></div>
+<form><textarea id="output" name="output" readonly></textarea></form>
+</div>
+<div id="consoleDiv">
+<div class="title">Console <span><a href="#" onclick="$('#console').val(''); return false;">Clear</a></span></div>
+<form><textarea id="console" name="console" readonly></textarea></form>
+</div>
+<div id="commandsDiv">
+<input type="button" value="Run" onclick="runProgram(false);"/>
+<input type="button" value="Stop" onclick="stopProgram();"/>
+<input type="button" value="Clear program" onclick="if (confirm('Are you sure?')) { editor.getSession().setValue(''); editor.focus(); } return false;" style="margin-bottom: 20px;"/>
+<input type="button" value="Special functions" onclick="jQuery.facebox({ div: '#help' });" />
+<input type="button" value="Array functions" onclick="jQuery.facebox({ div: '#arrayhelp' });" />
+<input type="button" value="String functions" onclick="jQuery.facebox({ div: '#stringhelp' });" />
+
+
+</div>
+</div>
+<div id="code">
+</div>
+<div id="help">
+<h2>Special functions</h2>
+<div><b>print(arg1<em>[, arg2, arg3, ...]</em>)</b></div>
+<p>
+Print on output for the current case; will separate each arguments with a single space character; if an argument is an array, its elements are also printed separatedly. The function <em>println</em>
+works like this one, but appends a new line character at the end of the printing sequence.
+</p>
+<div><b>log(arg1<em>[, arg2, arg3, ...]</em>)</b></div>
+<p>
+Logs a message to the console; objects passed to this function are converted to JSON.
+</p>
+<div><b>readLine()</b></div>
+<p>
+Reads the next line as a string.
+</p>
+<p>
+<div><b>readInt()</b></div>
+Reads the next line, returning its integer value.
+</p>
+<div><b>readInts()</b></div>
+<p>
+Reads the next line, and interprets it as a list of integers, returning an array with them.
+</p>
+<div><b>readFloats()</b></div>
+<p>
+Reads the next line, and interprets it as a list of floats, returning an array with them.
+</p>
+<div><b>readStrings()</b></div>
+<p>
+Reads the next line assuming is a list of space-separated strings, and returns them as an array.
+</p>
+<div><b>smartRead(<em>[firstIsCount]</em>)</b></div>
+<p>
+Reads the next line and tries to guess what it is made of; the parameter indicates if the first number is the number of subgroups (if it's not present it will be autodetected), and detects strings, numbers and floats.
+</p>
+</div>
+<div id="arrayhelp">
+<h2>Array functions</h2>
+<div><b><em>array</em>.shift()</b></div>
+<p>Removes the first element of an array, and returns that element.</p>
+<div><b><em>array</em>.pop()</b></div>
+<p>Removes the last element of an array, and returns that element.</p>
+<div><b><em>array</em>.unshift(arg1<em>[, arg2, arg3, ...]</em>)</b></div>
+<p>Adds the specified elements (in order) to the top of array.</p>
+<div><b><em>array</em>.push(arg1<em>[, arg2, arg3, ...]</em>)</b></div>
+<p>Adds the specified elements (in order) to the bottom of array.</p>
+<div><b><em>array</em>.splice(index, howmanytoremove<em>[, arg1, arg2, arg3, ...]</em>)</b></div>
+<p>The splice() method adds and/or removes elements to/from an array, and returns the removed element(s).</p>
+<div><b><em>array</em>.sort(<em>[compareFunction]</em>)</b></div>
+<p>Sorts the elements of an array in place. <em>compareFunction</em> takes 2 parameters, and compares them; if the result is &lt;0, a is before b; if is 0, keeps the order between a and b, and &gt;0 puts a after b.</p>
+<div><b><em>array</em>.join(<em>[separator]</em>)</b></div>
+<p>Joins all the elements of an array into a string, placing <em>separator</em> between them (or "," if unespecified).</p>
+</div>
+<div id="stringhelp">
+<h2>String functions</h2>
+<div><b><em>string</em>.toLowerCase(), <em>string</em>.toUpperCase()</b></div>
+<p>Converts an string to all lowercase or all uppercase respectively.</p>
+<div><b><em>string</em>.indexOf(arg<em>[, start]</em>), <em>string</em>.lastIndexOf(arg<em>[, start]</em>)</b></div>
+<p>Find the next instance of <em>arg</em> in a string starting from position <em>start</em>, from the start or from the end respectively. Returns -1 if not found.</p>
+<div><b><em>string</em>.substr(start<em>[, length]</em>)</b></div>
+<p>Extracts a substring from a string, starting from <em>start</em>; if <em>length</em> is not specified, it will extract to the end.</p>
+<div><b><em>string</em>.substring(start<em>[, end]</em>)</b></div>
+<p>Extracts a substring from a string between two specified indices; if only one is specified, it will extract to the end.</p>
+<div><b><em>string</em>.split(separator<em>[, limit]</em>)</b></div>
+<p>Splits the strings into substrings; if <em>limit</em> is used, it will stop splitting when the number is reached. Use empty string as the separator to return an array with the individual characters.</p>
+<div><b><em>string</em>.charAt(index)</b></div>
+<p>Returns the character at certain position of a string.</p>
+<div><b><em>string</em>.charCodeAt(index)</b></div>
+<p>Returns the Unicode value of a character at certain position of a string.</p>
+</div>
+    <script>
+
+    var bigFile = false;
+    var bigFileContent = null;
+    function clearInput() {
+      bigFile = false;
+      bigFileContent = null;
+      $('#input').val('').removeAttr('readonly').focus();
+    }
+function openFile() {
+  $('#inputfile').trigger('click');
+  return false;
+}
+
+function handleInputFiles(files) {
+  if (!files.length) {
+    alert("No files selected!");
+  } else {  
+      var reader = new FileReader();
+      reader.onload = function() {
+        if (reader.result.length > 300000) {
+          bigFile = true;
+          bigFileContent = reader.result;
+          $('#input').attr('readonly','readonly').val("File too big to show. The program will still run.\n\nPress the Clear link to remove.");
+        } else {
+          bigFile = false;
+          bigFileContent = null;
+          $('#input').removeAttr('readonly').val(reader.result);
+        }
+      };
+      reader.onerror = function(stuff) {
+        alert('File could not be opened');
+      };
+      reader.readAsText(files[0]);
+  }
+}
+
+function dragenter(e) {
+  e.stopPropagation();
+  e.preventDefault();
+}
+
+function dragover(e) {
+  e.stopPropagation();
+  e.preventDefault();
+}
+
+function drop(e) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  var dt = e.dataTransfer;
+  var files = dt.files;
+
+  handleInputFiles(files);
+}
+
+var consoleCache = null;
+
+function logMessage(message) {
+  if (consoleCache == null) {
+    consoleCache = document.getElementById('console');
+  }
+  message += "\n------------\n" + consoleCache.value;
+  consoleCache.value = message;
+}
+
+var worker = null;
+function runProgram(withLogs, param) {
+  // Store data
+  if (!bigFile) {
+    localStorage["input"] = $('#input').val();
+  }
+  localStorage["code"] = editor.getSession().getValue();
+  
+  if (worker != null) worker.terminate();
+  
+  if (!window.BlobBuilder) {
+    if (window.WebKitBlobBuilder) {
+      window.BlobBuilder = window.WebKitBlobBuilder;
+    } else if (window.MozBlobBuilder) {
+      window.BlobBuilder = window.MozBlobBuilder;
+    } else if (window.MSBlobBuilder) {
+      window.BlobBuilder = window.MSBlobBuilder;
+    }
+  }
+  if (!window.URL && window.webkitURL)
+    window.URL = window.webkitURL;
+  
+  var currentLocation = window.location.href;
+  var lastIndex = currentLocation.lastIndexOf('/');
+  currentLocation = currentLocation.substring(0, lastIndex);
+  
+  var bb = new BlobBuilder();
+  bb.append("var cache = {}; function nullifyCache() { cache = {}; } function program() {\n" + editor.getSession().getValue() + "}\n");  
+  var blobURL = window.URL.createObjectURL(bb.getBlob());
+  worker = new Worker("worker.js");
+  
+  worker.onerror = function(event) {
+    logMessage("Error on worker, line " + (event.lineno-1) + ": " + event.message); 
+  };
+ 
+  worker.onmessage = function(event) {
+    if (event.data[0] == "result") {
+      $('#output').val(event.data[1]);
+    } else if (event.data[0] == "log") {
+      logMessage(event.data[1]);
+    }
+  };
+
+  var numCases = -1;
+  if (typeof param != "undefined") {
+    numCases = param;
+  }
+  
+  var input;
+  if (bigFile) {
+    input = bigFileContent;
+  } else {
+    input = $('#input').val();
+  }
+  worker.postMessage([input, blobURL, numCases]);
+}
+
+function stopProgram() {
+  if (worker != null) {
+    worker.terminate();
+    worker = null;
+  }
+}
+
+var editor;
+
+// Document ready
+window.onload = function() {
+        $('#output').focus(function() {
+            window.setTimeout(function() {
+              var output = document.getElementById('output');
+              output.select();
+            }, 0);
+        });
+        var dropbox = document.getElementById("inputDiv");
+      dropbox.addEventListener("dragenter", dragenter, false);
+      dropbox.addEventListener("dragover", dragover, false);
+      dropbox.addEventListener("drop", drop, false);
+      
+      editor = ace.edit("code");
+      editor.setTheme("ace/theme/solarized_light");
+      var JavaScriptMode = require("ace/mode/javascript").Mode;
+      editor.getSession().setMode(new JavaScriptMode());
+      editor.getSession().setTabSize(2);
+      editor.getSession().setUseSoftTabs(true);
+      
+      // Restore data
+      editor.getSession().setValue(localStorage["code"]);
+      $('#input').val(localStorage["input"]);
+    };
+    
+window.onbeforeunload = function (e) {
+  var e = e || window.event;
+  
+  // Store data
+  localStorage["input"] = $('#input').val();
+  localStorage["code"] = editor.getSession().getValue();
+  
+
+  // For IE and Firefox prior to version 4
+  if (e) {
+    e.returnValue = 'Are you sure you want to move from this page?';
+  }
+
+  // For Safari
+  return 'Are you sure you want to move from this page?';
+};
+
+
+</script>
+  </body>
+</html>
