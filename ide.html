@@ -304,9 +304,16 @@ function runProgram(withLogs, param) {
   var lastIndex = currentLocation.lastIndexOf('/');
   currentLocation = currentLocation.substring(0, lastIndex);
   
-  var bb = new BlobBuilder();
-  bb.append("var cache = {}; function nullifyCache() { cache = {}; } function program() {\n" + editor.getSession().getValue() + "}\n");  
-  var blobURL = window.URL.createObjectURL(bb.getBlob());
+  var blob;
+  var blobContents = "var cache = {}; function nullifyCache() { cache = {}; } function program() {\n" + editor.getSession().getValue() + "}\n";
+  if (!window.BlobBuilder) {
+    blob = new Blob([blobContents]);
+  } else {
+    var bb = new BlobBuilder();
+    bb.append(blobContents);  
+    blob = bb.getBlob();
+  }
+  var blobURL = window.URL.createObjectURL(blob);
   worker = new Worker("worker.js");
   
   worker.onerror = function(event) {

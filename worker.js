@@ -1,189 +1,3 @@
-var showLogs = true;
-var currentLoggedNumber = 0;
-var currentIteration = 0;
-
-function log() {
-  if (!showLogs) return;
-  
-  var currentDate = new Date();
-  var hours = '' + currentDate.getHours();
-  if (hours.length < 2) hours = '0' + hours;
-  var minutes = '' + currentDate.getMinutes();
-  if (minutes.length < 2) minutes = '0' + minutes;
-  var seconds = '' + currentDate.getSeconds();
-  if (seconds.length < 2) seconds = '0' + seconds;
-  var millis = '' + currentDate.getMilliseconds();
-  while (millis.length < 3) millis = '0' + millis;
-  var message = hours + ':' + minutes + ':' + seconds + '.' + millis;
-  
-  message += '/' + currentIteration;
-  
-  currentLoggedNumber++;
-  if (currentLoggedNumber > 100) {
-    message = "Too many logs, disabling for this iteration";
-    showLogs = false;
-  } else {
-    for (var c=0;c<arguments.length;c++) {
-      message += ' - ';
-      var currentArg = arguments[c];
-      
-      if (typeof currentArg == "string") {
-        message += currentArg;
-      } else {
-        message += JSON.stringify(currentArg);
-      }
-    }
-  }
-  /*
-  var console = document.getElementById('console');
-  message += console.value;
-  if (message.length > 2000) {
-    message.length = 2000;
-  }
-  console.value = message;
-  */
-  postMessage(["log", message]);
-}
-
-var Break = {toString: function() {return "Break";}};
-
-function forEach(array, action) {
-  try {
-    for (var i = 0; i < array.length; i++) {
-      if (action(array[i], i, array.length) === false);
-    }
-  }
-  catch (exception) {
-    if (exception != Break)
-      throw exception;
-  }
-}
-
-function forEachIn(object, action) {
-  for (var property in object) {
-    if (Object.prototype.hasOwnProperty.call(object, property))
-      action(property, object[property]);
-  }
-}
-
-
-function BinaryHeap(scoreFunction){
-  this.content = [];
-  this.scoreFunction = scoreFunction;
-}
-
-BinaryHeap.prototype = {
-  push: function(element) {
-    // Add the new element to the end of the array.
-    this.content.push(element);
-    // Allow it to bubble up.
-    this.bubbleUp(this.content.length - 1);
-  },
-
-  pop: function() {
-    // Store the first element so we can return it later.
-    var result = this.content[0];
-    // Get the element at the end of the array.
-    var end = this.content.pop();
-    // If there are any elements left, put the end element at the
-    // start, and let it sink down.
-    if (this.content.length > 0) {
-      this.content[0] = end;
-      this.sinkDown(0);
-    }
-    return result;
-  },
-
-  remove: function(node) {
-    var len = this.content.length;
-    // To remove a value, we must search through the array to find
-    // it.
-    for (var i = 0; i < len; i++) {
-      if (this.content[i] == node) {
-        // When it is found, the process seen in 'pop' is repeated
-        // to fill up the hole.
-        var end = this.content.pop();
-        if (i != len - 1) {
-          this.content[i] = end;
-          if (this.scoreFunction(end) < this.scoreFunction(node))
-            this.bubbleUp(i);
-          else
-            this.sinkDown(i);
-        }
-        return;
-      }
-    }
-    throw new Error("Node not found.");
-  },
-
-  size: function() {
-    return this.content.length;
-  },
-
-  bubbleUp: function(n) {
-    // Fetch the element that has to be moved.
-    var element = this.content[n];
-    // When at 0, an element can not go up any further.
-    while (n > 0) {
-      // Compute the parent element's index, and fetch it.
-      var parentN = Math.floor((n + 1) / 2) - 1,
-          parent = this.content[parentN];
-      // Swap the elements if the parent is greater.
-      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
-        this.content[parentN] = element;
-        this.content[n] = parent;
-        // Update 'n' to continue at the new position.
-        n = parentN;
-      }
-      // Found a parent that is less, no need to move it further.
-      else {
-        break;
-      }
-    }
-  },
-
-  sinkDown: function(n) {
-    // Look up the target element and its score.
-    var length = this.content.length,
-        element = this.content[n],
-        elemScore = this.scoreFunction(element);
-
-    while(true) {
-      // Compute the indices of the child elements.
-      var child2N = (n + 1) * 2, child1N = child2N - 1;
-      // This is used to store the new position of the element,
-      // if any.
-      var swap = null;
-      // If the first child exists (is inside the array)...
-      if (child1N < length) {
-        // Look it up and compute its score.
-        var child1 = this.content[child1N],
-            child1Score = this.scoreFunction(child1);
-        // If the score is less than our element's, we need to swap.
-        if (child1Score < elemScore)
-          swap = child1N;
-      }
-      // Do the same checks for the other child.
-      if (child2N < length) {
-        var child2 = this.content[child2N],
-            child2Score = this.scoreFunction(child2);
-        if (child2Score < (swap == null ? elemScore : child1Score))
-          swap = child2N;
-      }
-
-      // If the element needs to be moved, swap it, and continue.
-      if (swap != null) {
-        this.content[n] = this.content[swap];
-        this.content[swap] = element;
-        n = swap;
-      }
-      // Otherwise, we are done.
-      else {
-        break;
-      }
-    }
-  }
-};
 
 /*!
  * Arrays Libary v1.0
@@ -400,172 +214,6 @@ var Arrays = {
     return isEquals;
   }
 };
-
-var currentOutputLine = "";
-
-function print() {
-  for (var c=0;c<arguments.length;c++) {
-    if (c > 0) {
-      currentOutputLine += " ";
-    }
-    if (typeof(arguments[c]) == "object") {
-      if (Arrays.isArray(arguments[c])) {
-        for (var d=0;d<arguments[c].length;d++) {
-          if (d > 0) {
-            currentOutputLine += " ";
-          }
-          currentOutputLine += arguments[c][d];
-        }
-      } else {
-        currentOutputLine += arguments[c];
-      }
-    } else {
-      currentOutputLine += arguments[c];
-    }
-  }
-}
-
-function println() {
-  print.apply(null, arguments);
-  currentOutputLine += "\n";
-}
-
-
-function getOutputLine() {
-  return currentOutputLine;
-}
-
-function resetOutputLine() {
-  currentOutputLine = '';
-}
-
-var currentInput = [];
-
-function readLine() {
-  return currentInput.shift();
-}
-
-function readInt() {
-  return parseInt(readLine());
-}
-
-function readStrings() {
-  return readLine().split(' ');
-  var returnValue = [];
-  for (var c=0;c<parts.length;c++) {
-    returnValue.push(parseInt(parts[c]));
-  }
-  
-  return returnValue;
-}
-
-function readInts() {
-  var parts = readStrings();
-  var returnValue = [];
-  for (var c=0;c<parts.length;c++) {
-    returnValue.push(parseInt(parts[c]));
-  }
-  
-  return returnValue;
-}
-
-function readFloats() {
-  var parts = readStrings();
-  var returnValue = [];
-  for (var c=0;c<parts.length;c++) {
-    returnValue.push(parseFloat(parts[c]));
-  }
-  
-  return returnValue;
-}
-
-function smartRead(firstIsCount) {
-  var parts = readStrings();
-  
-  var total = parts.length;
-  
-  if (typeof firstIsCount == "undefined") {
-    var firstNumber = parseInt(parts[0]);
-    if ((total > 1) && 
-        (!isNaN(firstNumber))&&
-        ((total - 1)%firstNumber == 0)
-        ) {
-      isFirstCount = true;
-    }
-  }
-  if (isFirstCount) {
-    total = parseInt(parts.shift());
-  }
-  var perGroup = Math.floor(parts.length / total);
-  for (var c=0;c<total;c++) {
-    var resultPart;
-    if (perGroup > 1) {
-      resultPart = [];
-    }
-    for (var d=0;d<perGroup;d++) {
-      var newPart = parts[c*perGroup+d];
-      if (newPart.indexOf('.') > -1) {
-        if (!isNaN(parseFloat(newPart))) {
-          newPart = parseFloat(newPart);
-        }
-      } else {
-        if (!isNaN(parseInt(newPart))) {
-          newPart = parseInt(newPart);
-        }
-      }
-      if (perGroup > 1) {
-        resultPart.push(newPart);
-      } else {
-        parts[c*perGroup+d] = newPart;
-      }
-    }
-    if (perGroup > 1) {
-      parts[c] = resultPart;
-    }
-  }
-  
-  parts.length = total;
-
-  return parts;
-}
-
-onmessage = function(event) {
-  var data = event.data;
-  
-  currentInput = data[0].split("\n");
-  
-  try {
-    importScripts(data[1]);
-  } catch (e) {
-    log('Exception while loading program', e.stack);
-    return;
-  }
-  var totalCases = readInt();
-  
-  var numCases = data[2];
-  
-  if ((numCases < 1)|| (numCases > totalCases)) {
-    numCases = totalCases;
-  }
-  
-  var realProgramOutput = "";
-  
-  nullifyCache();
-  
-  for (var c=1;c<=numCases;c++) {
-    currentIteration = c;
-    if (numCases <= 1000) {
-      log("Starting iteration " + c);
-    }
-    showLogs = true;
-    currentLoggedNumber = 0;
-    resetOutputLine();
-    program();
-    realProgramOutput += 'Case #' + c + ': ' + getOutputLine() + "\n";
-  }
-  
-  postMessage(["result", realProgramOutput]);
-}
 
 // BIGINT
 
@@ -1798,4 +1446,349 @@ BigInteger.prototype.square = bnSquare;
 // int hashCode()
 // long longValue()
 // static BigInteger valueOf(long val)
+function BinaryHeap(scoreFunction){
+  this.content = [];
+  this.scoreFunction = scoreFunction;
+}
 
+BinaryHeap.prototype = {
+  push: function(element) {
+    // Add the new element to the end of the array.
+    this.content.push(element);
+    // Allow it to bubble up.
+    this.bubbleUp(this.content.length - 1);
+  },
+
+  pop: function() {
+    // Store the first element so we can return it later.
+    var result = this.content[0];
+    // Get the element at the end of the array.
+    var end = this.content.pop();
+    // If there are any elements left, put the end element at the
+    // start, and let it sink down.
+    if (this.content.length > 0) {
+      this.content[0] = end;
+      this.sinkDown(0);
+    }
+    return result;
+  },
+
+  remove: function(node) {
+    var len = this.content.length;
+    // To remove a value, we must search through the array to find
+    // it.
+    for (var i = 0; i < len; i++) {
+      if (this.content[i] == node) {
+        // When it is found, the process seen in 'pop' is repeated
+        // to fill up the hole.
+        var end = this.content.pop();
+        if (i != len - 1) {
+          this.content[i] = end;
+          if (this.scoreFunction(end) < this.scoreFunction(node))
+            this.bubbleUp(i);
+          else
+            this.sinkDown(i);
+        }
+        return;
+      }
+    }
+    throw new Error("Node not found.");
+  },
+
+  size: function() {
+    return this.content.length;
+  },
+
+  bubbleUp: function(n) {
+    // Fetch the element that has to be moved.
+    var element = this.content[n];
+    // When at 0, an element can not go up any further.
+    while (n > 0) {
+      // Compute the parent element's index, and fetch it.
+      var parentN = Math.floor((n + 1) / 2) - 1,
+          parent = this.content[parentN];
+      // Swap the elements if the parent is greater.
+      if (this.scoreFunction(element) < this.scoreFunction(parent)) {
+        this.content[parentN] = element;
+        this.content[n] = parent;
+        // Update 'n' to continue at the new position.
+        n = parentN;
+      }
+      // Found a parent that is less, no need to move it further.
+      else {
+        break;
+      }
+    }
+  },
+
+  sinkDown: function(n) {
+    // Look up the target element and its score.
+    var length = this.content.length,
+        element = this.content[n],
+        elemScore = this.scoreFunction(element);
+
+    while(true) {
+      // Compute the indices of the child elements.
+      var child2N = (n + 1) * 2, child1N = child2N - 1;
+      // This is used to store the new position of the element,
+      // if any.
+      var swap = null;
+      // If the first child exists (is inside the array)...
+      if (child1N < length) {
+        // Look it up and compute its score.
+        var child1 = this.content[child1N],
+            child1Score = this.scoreFunction(child1);
+        // If the score is less than our element's, we need to swap.
+        if (child1Score < elemScore)
+          swap = child1N;
+      }
+      // Do the same checks for the other child.
+      if (child2N < length) {
+        var child2 = this.content[child2N],
+            child2Score = this.scoreFunction(child2);
+        if (child2Score < (swap == null ? elemScore : child1Score))
+          swap = child2N;
+      }
+
+      // If the element needs to be moved, swap it, and continue.
+      if (swap != null) {
+        this.content[n] = this.content[swap];
+        this.content[swap] = element;
+        n = swap;
+      }
+      // Otherwise, we are done.
+      else {
+        break;
+      }
+    }
+  }
+};
+
+var showLogs = true;
+var currentLoggedNumber = 0;
+var currentIteration = 0;
+
+function log() {
+  if (!showLogs) return;
+  
+  var currentDate = new Date();
+  var hours = '' + currentDate.getHours();
+  if (hours.length < 2) hours = '0' + hours;
+  var minutes = '' + currentDate.getMinutes();
+  if (minutes.length < 2) minutes = '0' + minutes;
+  var seconds = '' + currentDate.getSeconds();
+  if (seconds.length < 2) seconds = '0' + seconds;
+  var millis = '' + currentDate.getMilliseconds();
+  while (millis.length < 3) millis = '0' + millis;
+  var message = hours + ':' + minutes + ':' + seconds + '.' + millis;
+  
+  message += '/' + currentIteration;
+  
+  currentLoggedNumber++;
+  if (currentLoggedNumber > 100) {
+    message = "Too many logs, disabling for this iteration";
+    showLogs = false;
+  } else {
+    for (var c=0;c<arguments.length;c++) {
+      message += ' - ';
+      var currentArg = arguments[c];
+      
+      if (typeof currentArg == "string") {
+        message += currentArg;
+      } else {
+        message += JSON.stringify(currentArg);
+      }
+    }
+  }
+
+  postMessage(["log", message]);
+}
+
+var Break = {toString: function() {return "Break";}};
+
+function forEach(array, action) {
+  try {
+    for (var i = 0; i < array.length; i++) {
+      if (action(array[i], i, array.length) === false) break;
+    }
+  }
+  catch (exception) {
+    if (exception != Break)
+      throw exception;
+  }
+}
+
+function forEachIn(object, action) {
+  for (var property in object) {
+    if (Object.prototype.hasOwnProperty.call(object, property))
+      if (action(property, object[property]) === false) break;
+  }
+}
+
+
+
+var currentOutputLine = "";
+
+function print() {
+  for (var c=0;c<arguments.length;c++) {
+    if (c > 0) {
+      currentOutputLine += " ";
+    }
+    if (typeof(arguments[c]) == "object") {
+      if (Arrays.isArray(arguments[c])) {
+        for (var d=0;d<arguments[c].length;d++) {
+          if (d > 0) {
+            currentOutputLine += " ";
+          }
+          currentOutputLine += arguments[c][d];
+        }
+      } else {
+        currentOutputLine += arguments[c];
+      }
+    } else {
+      currentOutputLine += arguments[c];
+    }
+  }
+}
+
+function println() {
+  print.apply(null, arguments);
+  currentOutputLine += "\n";
+}
+
+
+function getOutputLine() {
+  return currentOutputLine;
+}
+
+function resetOutputLine() {
+  currentOutputLine = '';
+}
+
+var currentInput = [];
+
+function readLine() {
+  return currentInput.shift();
+}
+
+function readInt() {
+  return parseInt(readLine());
+}
+
+function readStrings() {
+  return readLine().split(' ');
+  var returnValue = [];
+  for (var c=0;c<parts.length;c++) {
+    returnValue.push(parseInt(parts[c]));
+  }
+  
+  return returnValue;
+}
+
+function readInts() {
+  var parts = readStrings();
+  var returnValue = [];
+  for (var c=0;c<parts.length;c++) {
+    returnValue.push(parseInt(parts[c]));
+  }
+  
+  return returnValue;
+}
+
+function readFloats() {
+  var parts = readStrings();
+  var returnValue = [];
+  for (var c=0;c<parts.length;c++) {
+    returnValue.push(parseFloat(parts[c]));
+  }
+  
+  return returnValue;
+}
+
+function smartRead(firstIsCount) {
+  var parts = readStrings();
+  
+  var total = parts.length;
+  
+  if (typeof firstIsCount == "undefined") {
+    var firstNumber = parseInt(parts[0]);
+    if ((total > 1) && 
+        (!isNaN(firstNumber))&&
+        ((total - 1)%firstNumber == 0)
+        ) {
+      isFirstCount = true;
+    }
+  }
+  if (isFirstCount) {
+    total = parseInt(parts.shift());
+  }
+  var perGroup = Math.floor(parts.length / total);
+  for (var c=0;c<total;c++) {
+    var resultPart;
+    if (perGroup > 1) {
+      resultPart = [];
+    }
+    for (var d=0;d<perGroup;d++) {
+      var newPart = parts[c*perGroup+d];
+      if (newPart.indexOf('.') > -1) {
+        if (!isNaN(parseFloat(newPart))) {
+          newPart = parseFloat(newPart);
+        }
+      } else {
+        if (!isNaN(parseInt(newPart))) {
+          newPart = parseInt(newPart);
+        }
+      }
+      if (perGroup > 1) {
+        resultPart.push(newPart);
+      } else {
+        parts[c*perGroup+d] = newPart;
+      }
+    }
+    if (perGroup > 1) {
+      parts[c] = resultPart;
+    }
+  }
+  
+  parts.length = total;
+
+  return parts;
+}
+
+onmessage = function(event) {
+  var data = event.data;
+  
+  currentInput = data[0].split("\n");
+  
+  try {
+    importScripts(data[1]);
+  } catch (e) {
+    log('Exception while loading program', e.stack);
+    return;
+  }
+  var totalCases = readInt();
+  
+  var numCases = data[2];
+  
+  if ((numCases < 1)|| (numCases > totalCases)) {
+    numCases = totalCases;
+  }
+  
+  var realProgramOutput = "";
+  
+  nullifyCache();
+  
+  for (var c=1;c<=numCases;c++) {
+    currentIteration = c;
+    if (numCases <= 1000) {
+      log("Starting iteration " + c);
+    }
+    showLogs = true;
+    currentLoggedNumber = 0;
+    resetOutputLine();
+    program();
+    realProgramOutput += 'Case #' + c + ': ' + getOutputLine() + "\n";
+  }
+  
+  postMessage(["result", realProgramOutput]);
+}
