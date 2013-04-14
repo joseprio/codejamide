@@ -16,11 +16,13 @@
   -webkit-box-shadow:0 0 18px rgba(0,0,0,0.4);
   -moz-box-shadow:0 0 18px rgba(0,0,0,0.4);
   box-shadow:0 0 18px rgba(0,0,0,0.4);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #facebox .content {
-  display:table;
-  width: 600px;
+  display: table;
+  width: 650px;
   padding: 10px;
   background: #fff;
   -webkit-border-radius:4px;

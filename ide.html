@@ -104,11 +104,13 @@
       #facebox h2 {
         text-align: center;
         margin-bottom: 15px;
+        margin-right: 16px;
       }
       
       #facebox p {
         margin-top: 3px;
         margin-bottom: 15px;
+        margin-right: 16px;
       }
     </style>
   </head>
@@ -143,6 +145,10 @@
 </div>
 <div id="help">
 <h2>Special functions</h2>
+<div><b>cache</b></div>
+<p>
+Object to store data between iterations; it will be reset after each complete run. Use it as any other JS object to store data in its properties.
+</p>
 <div><b>print(arg1<em>[, arg2, arg3, ...]</em>)</b></div>
 <p>
 Print on output for the current case; will separate each arguments with a single space character; if an argument is an array, its elements are also printed separatedly. The function <em>println</em>
