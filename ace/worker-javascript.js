@@ -8726,8 +8726,8 @@ Pp.ReturnOrYield = function ReturnOrYield() {
     var parentScript = this.x.parentScript;
 
     if (tt === RETURN) {
-        if (!this.x.inFunction)
-            this.fail("Return not in function");
+//        if (!this.x.inFunction)
+//            this.fail("Return not in function");
     } else /* if (tt === YIELD) */ {
         if (!this.x.inFunction)
             this.fail("Yield not in function");
