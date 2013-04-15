@@ -6,8 +6,8 @@ Hello there!!
 
 So, checking my code jam solution? Good!
 
-This is not the real page that I used to develop the code (I'm not a masochist),
-but a "running framework" that is used to run the same code.
+This is not the real page that I used to develop the code, but a "running
+framework" that is used to run the same code.
 
 The reasons why I'm not uploading the real one:
 - This one is compatible with more browsers (in theory, it should be compatible
@@ -18,11 +18,7 @@ even with IE6).
 Of course, this page will render the same solution, and contains the same
 libraries I developed.
 
-The one I used has CodeMirror, a web worker to run the code (so it's in a
-separate thread), and better debugging capabilities (for instance, it will
-report the line where an error occurs) and more; if for any reason you would
-want to take a look at it, feel free to contact me at peprio@gmail.com , and
-I'll more than happy to send it to you :)
+Get the full version at http://github.com/joseprio/codejamide
 -->     
     <title>Runner</title>
 
@@ -289,6 +285,9 @@ function log() {
   console.value = message;
 }
 
+var cache = {};
+function nullifyCache() { cache = {}; } 
+
 var currentIteration = 0;
 
 var showLogs = true;
@@ -307,14 +306,20 @@ function runProgram() {
     numCases = totalCases;
   }
   
+  nullifyCache();
+  
   var realProgramOutput = "";
   for (var c=1;c<=numCases;c++) {
     currentIteration = c;
     resetOutputLine();
+    var programResult;
     try {
-      program();
+      programResult = program();
     } catch (e) {
       log('Exception in iteration ' + c + ' while running program', e);
+    }
+    if (typeof programResult != "undefined") {
+      print(programResult);
     }
     realProgramOutput += 'Case #' + c + ': ' + getOutputLine() + "\n";
   }
