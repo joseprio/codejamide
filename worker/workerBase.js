@@ -220,7 +220,15 @@ onmessage = function(event) {
     showLogs = true;
     currentLoggedNumber = 0;
     resetOutputLine();
-    program();
+    var programResult;
+    try {
+      programResult = program();
+    } catch (e) {
+      log('Exception in iteration ' + c + ' while running program', e);
+    }
+    if (typeof programResult != "undefined") {
+      print(programResult);
+    }
     realProgramOutput += 'Case #' + c + ': ' + getOutputLine() + "\n";
   }
   
