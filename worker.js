@@ -88,8 +88,10 @@ var Arrays = {
     // We fill the array with certain value
     // If it's a multidimensional array, we fill them too
     
-    var fromIndex = 0;
-    var toIndex =  target.length-1;
+    var fromIndex = 0,
+        toIndex = target.length-1,
+        valueIsFunction = (typeof value == "function"),
+        valueIsArray = Arrays.isArray(value);
     
     // Support fromIndex/toIndex
     if (arguments.length > 2) {
@@ -102,8 +104,11 @@ var Arrays = {
       if (Arrays.isArray(target[c])) {
         Arrays.fill(target[c], value);
       } else {
-        if (typeof value == "function") {
+        if (valueIsFunction) {
           target[c] = value.call(target, c);
+        } else if (valueIsArray) {
+          // If value is an array, create a copy to avoid problems
+          target[c] = Arrays.copyOf(value);
         } else {
           target[c] = value;
         }
@@ -1790,7 +1795,7 @@ onmessage = function(event) {
     try {
       programResult = program();
     } catch (e) {
-      log('Exception in iteration ' + c + ' while running program', e);
+      log('Exception in iteration a' + c + ' while running program', e.stack);
     }
     if (typeof programResult != "undefined") {
       print(programResult);
