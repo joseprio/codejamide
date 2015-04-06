@@ -3,9 +3,10 @@ Code Jam IDE
 
 This is the tool I use for Code Jam.
 
-More information about it can be found in [an article in my blog](file:///blog/2012/05/26/using-javascript-in-google-code-jam/).
 
-Makes use of Tom Wu's excellent BIGINT JS library and the Ajax.org ACE editor.
+Try it online [here](http://joseprio.github.io/codejamide/ide.html).
+
+More information about it can be found in [an article in my blog](http://www.joseprio.com/blog/2012/05/26/using-javascript-in-google-code-jam/).
 
 MIT License
 -----------
