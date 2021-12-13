@@ -376,6 +376,7 @@ window.onload = function() {
       
       var codeNode = document.getElementById("code");
       codeNode.appendChild(document.createTextNode(localStorage["code"]));
+      ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.13');
       editor = ace.edit("code");
       editor.setTheme("ace/theme/solarized_light");
       editor.getSession().setMode("ace/mode/javascript");
